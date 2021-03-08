@@ -1,0 +1,65 @@
+<template>
+  <div class="card">
+    <div>
+      <text class="content">
+        e-paper
+      </text>
+    </div>
+    
+      <div class="info">
+        <text class="time">swc作品创新性分析报告_0.2.3</text>
+        <text class="comment1">正在处理</text>
+      </div>
+      <div class="info">
+        <text class="time">swc开发文档_0.4.1</text>
+        <text class="comment2">2020/4/17 已完成</text>
+      </div>
+      <div class="info">
+        <text class="time">swc技术方案</text>
+        <text class="comment2">2020/4/16 已完成</text>
+      </div>
+  </div>
+</template>
+
+<style>
+.card {
+  flex-direction: column;
+  height: 330px;
+  width: 100%;
+  padding: 50px 35px;
+  background-color: #E4EAF0;
+  border-radius: 25px;
+}
+
+.content {
+  text-align: left;
+  color: rgba(0,0,0,0.80);
+  text-overflow: ellipsis;
+  lines: 2;
+  margin-bottom: 20px;
+}
+.info {
+  justify-content: space-between;
+  width: 92%;
+  margin-top: 25px
+}
+ .time {
+  color: rgba(0,0,0,0.5);
+}
+.comment1{
+  color: #000000;
+  font-size: 20px
+}
+.comment2{
+  color: rgba(0,0,0,0.5);
+  font-size: 20px
+}
+</style>
+
+<script>
+export default {
+  private: {
+    title: '卡片示例'
+  }
+}
+</script>

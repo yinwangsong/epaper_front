@@ -1,0 +1,52 @@
+{
+  "name": "version1.0",
+  "version": "1.0.0",
+  "subversion": {
+    "toolkit": "0.6.15"
+  },
+  "description": "",
+  "scripts": {
+    "build": "hap build",
+    "release": "hap release",
+    "server": "hap server",
+    "watch": "hap watch",
+    "lint": "eslint --format codeframe --fix --ext .ux,.js src/",
+    "dev": "hap server --watch",
+    "postinstall": "hap postinstall"
+  },
+  "devDependencies": {
+    "@types/quickapp": "git+https://github.com/vivoquickapp/quickapp-types.git",
+    "apex-ui": "^1.5.1",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^6.8.0",
+    "eslint-plugin-hybrid": "0.0.5",
+    "eslint-plugin-ux": "^0.0.2",
+    "hap-toolkit": "^0.6.15",
+    "inherits": "^2.0.4",
+    "quist-ui": "^1.1.2",
+    "vivo-hap-toolkit": "^0.6.4",
+    "webpack": "^4.43.0"
+  },
+  "browserslist": [
+    "chrome 65"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "acorn": "^6.0.0",
+    "babel-loader": "^8.1.0",
+    "bufferutil": "^4.0.1",
+    "cheerio": "^1.0.0-rc.3",
+    "file-loader": "^6.0.0",
+    "fs": "0.0.1-security",
+    "jquery": "^3.5.1",
+    "jsdom": "^16.2.2",
+    "safe-buffer": "^5.2.1",
+    "utf-8-validate": "^5.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://39.100.94.111:8082/Alec/quickapp"
+  },
+  "private": true
+}

@@ -1,0 +1,350 @@
+<template>
+    <div class="login-page">
+
+        <image src="../Common/e-paper.png" class="title_icon" ></image>
+        <text style="font-size:60px;font-weight:bolder;margin:-top:50px;color:#000000;letter-spacing:30px;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">E-paper</text>
+            <!-- 账号-->
+            <div class=account-bar>
+                <image class = "account-icon" src = "../Common/account.png"></image>
+                <label class = "account-label"></label>
+                <input class = "account-name" 
+                type="text" 
+                placeholder="请输入账号/用户名" 
+                value={{placeholder_account}} 
+                onchange="accountinput"></input>
+            </div>
+            <!-- 密码-->
+            <div class=password-bar>
+                <image class = "password-icon" src = "../Common/password.png"></image>
+                <label class = "password-label"></label>
+                <input 
+                class = "password-name" 
+                type="password" 
+                placeholder="请输入密码" 
+                value={{placeholder_password}} onchange="passwordinput"></input>
+            </div>
+            <div style="width:100%;" onclick="goRegister" >
+            <text style="margin-left:500px;margin-top:20px">{{regi_info}}</text>
+            </div>
+            <div class="btns">
+            <!-- 登录-->
+                <div style="border-radius:15px" if="{{!Register}}">
+                    <input class="login-button" type = "button" value = "登录" onclick="login"></button>
+                </div>
+                <!--注册-->
+                <div style="border-radius:15px" show={{Register}}>
+                    <input class="register-button" type="button" value = "注册" onclick="register"></input>
+                </div>
+ 
+            </div>
+
+        
+    </div>
+</template>
+
+<style>
+.login-page {
+  flex-direction: column;
+  align-items:center;
+  background-color: #faebd7;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+}
+.title_icon{
+    resize-mode:cover;
+    height:120px;
+    width:120px;
+    border-radius:60px;
+    margin-top:100px;
+}
+.account-bar {
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 3px solid #ccc;
+    margin-top: 180px;
+    margin-bottom: 100px;
+    height: 100px;
+    width: 580px;
+}
+
+.account-icon {
+    height: 30px;
+    margin-top: 7px;
+    margin-left: 7px;
+    margin-right: 7px;
+    margin-bottom: 7px;
+}
+
+.account-label {
+    width: 30px;
+}
+
+.account-name {
+    width: 350px;
+}
+.password-bar {
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 3px solid #ccc;
+
+    height: 120px;
+    width: 580px;
+}
+
+.password-icon {
+    height: 30px;
+    margin-top: 7px;
+    margin-left: 7px;
+    margin-right: 7px;
+    margin-bottom: 7px;
+}
+
+.password-label {
+    width: 30px;
+}
+
+.passwordname {
+    width: 350px;
+}
+
+.btns {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%
+}
+
+.login-button {
+    background-color: #f7d7a7;
+    margin-top: 30px;
+    height: 100px;
+    width:450px;
+    margin-top: 50px;
+    border-radius: 10px;
+}
+
+.register-button {
+    background-color: #f7d7a7;
+    margin-top: 30px;
+    height: 100px;
+    width:450px;
+    margin-top: 50px;
+    border-radius: 10px;
+}
+</style>
+
+<script>
+import router from '@system.router'
+const request = require('@system.request')
+const fetch = require('@system.fetch')
+const prompt = require('@system.prompt')
+const storage = require('@system.storage')
+export default {
+    private:{
+        accounttext:'',
+        passwordtext:'',
+        Register:false,
+        placeholder_account:'',
+        placeholder_password:'',
+        weather:null,
+        day:null,
+        regi_info:'注册账号'
+
+    },
+    onInit(){
+        var that=this;
+        storage.get({
+            key:'openid',
+            success:function(res){
+                if(res!=''){
+                that.placeholder_account=res;
+                storage.get({
+                    key:'password',
+                    success:function(resp){
+                        if(resp!=''){
+                          that.placeholder_password=resp; 
+                        }
+     
+            }
+        }) 
+                }
+           
+            }
+        })
+      this.getDayandWea();
+    },
+    getDayandWea(){
+         var that=this;
+ 
+          var url='http://www.weather.com.cn/weather/101110101.shtml';
+          fetch.fetch({
+            header: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            url: url,
+            method: "GET",
+            success: function(sres) {
+                //处理公共部分业务逻辑
+                
+                var str=sres.data;
+                // var x1=str.match("id=\"hidden_title\"");
+                var x2=str.match("..月..日..时 周.  ..")
+                var info=x2[0].split(" ")
+                var day=info[1]
+                var weather=info[3]
+                console.log(day,weather)
+                if(weather.indexOf('晴')!=-1)weather="晴"
+                else if(weather.indexOf('雨')!=-1)weather="下雨"
+                else if(weather.indexOf('云')!=-1)weather="多云"
+                else weather="晴"
+
+                that.weather=weather;
+                that.day=day;
+            },
+            fail: (fres) => {
+                // fail(fres);
+                console.log(fres)
+                prompt.showToast({
+                     message:'请检查网络连接~'
+                })
+            }
+      })
+    },
+    goRegister(){
+        this.placeholder_account='';
+        this.placeholder_password='';
+        console.log(1)
+        if(this.Register==false){
+            this.Register=true;
+            this.regi_info='已有账号'
+        }else{
+            this.Register=false;
+            this.regi_info='注册账号'
+        }
+    },
+    accountinput(e){
+        var acctext = e.text;
+        this.accounttext = acctext;
+        console.log(this.accounttext)
+    },
+    passwordinput(q){
+        var passtext = q.text;
+        this.passwordtext = passtext;
+        console.log(this.passwordtext)
+    },
+    login(){
+        var timestamp = (new Date()).valueOf();
+        var that=this;
+         console.log("***********",this.accounttext,this.passwordtext)
+        if(this.accounttext==''||this.passwordtext==''){
+             prompt.showToast({
+                message:'用户名/密码不得为空哟~'
+            })
+            return;
+        }
+        //不再进行详细的逻辑判断，只提供登录成功与不成功
+        fetch.fetch({
+            url:'http://epaper.codesdream.com/user/login',
+            method:'POST',
+            header:{
+                    'X-Requested-With':'',
+                    'timestamp':timestamp,
+                    'Content-Type':'application/json'
+            },
+            responseType:'json',
+            data:{
+                'clientCode': this.accounttext,
+                'openid': this.accounttext,
+                'password':this.passwordtext
+            },
+            success: function(response){
+                console.log(response)
+                if(response.code==200)
+                {
+                    that.$app.setAppData('openid',that.accounttext);
+                    that.$app.setAppData('clientCode',that.accounttext);
+                    that.$app.setAppData('token',response.data.data.token);
+                    that.$app.setAppData('day',that.day);
+                    that.$app.setAppData('weather',that.weather);
+
+                    storage.set({
+                        key:'openid',
+                        value:that.accounttext,
+                        success:function(res){
+                            console.log("*******",res)
+                        },
+                        fail:function(res){
+                            console.log(res)
+                        }
+                    })
+                     storage.set({
+                        key:'password',
+                        value:that.passwordtext
+                    })
+                    console.log(that.day,that.weather)
+                    router.replace({
+                        uri:'/tab_bar',
+                    })
+                }
+                else{
+                    prompt.showToast({
+                    message:'登录失败>_<请检查账户或者密码'
+                })
+                }
+                
+            },
+            fail:function(res){
+                 prompt.showToast({
+                    message:'请检查网络连接~'
+                })
+            }
+        })
+    },
+    register(){
+        var timestamp = (new Date()).valueOf();
+        var that=this;
+        //点击注册后，首先判断账号是否被注册了
+        if(this.accounttext==''||this.passwordtext==''){
+             prompt.showToast({
+                    message:'账号和密码不能为空哦~'
+                })
+            return;
+        }
+        fetch.fetch({
+                url:'http://epaper.codesdream.com/user',
+                method:'POST',
+                header:{
+                    'X-Requested-With':'',
+                    'timestamp':timestamp,
+                    'Content-Type':'application/json'
+                },
+                responseType: 'json',
+                data:{
+                    "openid":this.accounttext,
+	                "password":this.passwordtext
+                },
+                success: function(response) {
+                
+                   if(response.code==400){
+                     //用户名已注册
+                     prompt.showToast({
+                         message:'账户已被注册，请重新注册~'
+                     })
+                   }
+                   else if(response.code==201){
+                     //注册成功
+                     //console.log("以下是注册信息",response)
+                     prompt.showToast({
+                         message:'注册成功!请点击登录按钮进行登录~'
+                     })
+                     that.Register=false
+                   }
+              }
+            })
+       
+        
+    }
+}
+</script>

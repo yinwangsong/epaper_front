@@ -1,0 +1,159 @@
+<template>
+  <div class="quist-button" style="{{wrapperStyle()}}" @click="clicked">
+    <text style="{{innerStyle()}}">{{value}}</text>
+  </div>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-button/index.less";
+</style>
+
+<script>
+  export default {
+    props: {
+      type: {
+        type: String,
+        default: ''
+      },
+      value: {
+        type: String,
+        default: '确定'
+      },
+      block: {
+        type: Boolean,
+        default: false
+      },
+      disabled: {
+        type: Boolean,
+        default: false
+      },
+      borderRadius: {
+        type: Number,
+        default: 5
+      },
+      borderColor: {
+        type: String,
+        default: '#dddddd'
+      },
+      bgColor: {
+        type: String,
+        default: '#ffffff'
+      },
+      width: {
+        type: Number,
+        default: 288
+      },
+      height: {
+        type: Number,
+        default: 92
+      },
+      fSize: {
+        type: Number,
+        default: 32
+      },
+      fColor: {
+        type: String,
+        default: '#999999'
+      }
+    },
+    clicked() {
+      this.$emit('onClick')
+    },
+    wrapperStyle() {
+      let baseStyle = {
+        width: this.width + 'px',
+        height: this.height + 'px',
+        borderRadius: this.borderRadius + 'px',
+        borderColor: this.borderColor
+      }
+      if (this.block) {
+        if (this.disabled) {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#f3f5f7',
+            borderColor: '#dddddd',
+            width: '100%'
+          })
+        }
+        if (this.type === 'primary') {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#1890ff',
+            borderColor: '#1890ff',
+            width: '100%'
+          })
+        } else if (this.type === 'default') {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#ffffff',
+            width: '100%'
+          })
+        } else if (this.type === 'danger') {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#E64340',
+            borderColor: '#E64340',
+            width: '100%'
+          })
+        } else {
+          return Object.assign(baseStyle, {
+            backgroundColor: this.bgColor,
+            width: '100%'
+          })
+        }
+      } else if (!this.block) {
+        if (this.disabled) {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#f3f5f7',
+            borderColor: '#dddddd'
+          })
+        }
+        if (this.type === 'primary') {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#1890ff',
+            borderColor: '#1890ff'
+          })
+        } else if (this.type === 'default') {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#ffffff'
+          })
+        } else if (this.type === 'danger') {
+          return Object.assign(baseStyle, {
+            backgroundColor: '#E64340',
+            borderColor: '#E64340'
+          })
+        } else {
+          return Object.assign(baseStyle, {
+            backgroundColor: this.bgColor
+          })
+        }
+      }
+
+    },
+    innerStyle() {
+      let baseStyle = {
+        fontSize: this.fSize + 'px',
+        color: '#999999'
+      }
+      if (this.disabled) {
+        return Object.assign(baseStyle, {
+          color: '#cccccc'
+        })
+      }
+      if (this.type === 'primary') {
+        return Object.assign(baseStyle, {
+          color: '#ffffff'
+        })
+      } else if (this.type === 'default') {
+        return Object.assign(baseStyle, {
+          backgroundColor: this.bgColor
+        })
+      } else if (this.type === 'danger') {
+        return Object.assign(baseStyle, {
+          color: '#ffffff'
+        })
+      } else {
+        return Object.assign(baseStyle, {
+          color: this.fColor
+        })
+      }
+    }
+  }
+</script>

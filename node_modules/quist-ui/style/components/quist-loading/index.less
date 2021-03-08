@@ -1,0 +1,48 @@
+@loading-prefix: ~"@{css-prefix}-loading";
+
+@keyframes rotation {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.@{loading-prefix} {
+	justify-content: center;
+	align-items: center;
+
+	&-box {
+		width: 244px;
+		height: 244px;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		border-radius: @border-radius-base;
+		background-color: rgba(17, 17, 17, 0.7);
+	}
+
+	&-text {
+		color: #ffffff;
+		font-size: @font-size-base;
+	}
+
+	&-icon {
+		image {
+			width: 86px;
+			height: 86px;
+			background-repeat: no-repeat;
+			background-size: 86px;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 20px;
+			animation-name: rotation;
+			animation-duration: 2000ms;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+		}
+	}
+
+}

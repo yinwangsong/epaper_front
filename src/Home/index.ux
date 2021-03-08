@@ -1,0 +1,506 @@
+<template>
+    <div class="home-page">
+      <div class=mask> 
+        <text>今日{{Day}}</text>
+        <div>
+          <image src="../Common/{{Weather}}.png" 
+          style="resize-mode:contain;height:40px;"
+          ></image>
+          <text>天气{{Weather}}</text>
+        </div>
+        <text>适合写论文哦~</text>
+      </div>
+        <div class="input-box">
+            <div class="input-text" if="{{!Switch}}">
+              <div class="file">
+                <image src="../Common/{{backfix}}.png" style="resize-mode:contain;height:60px;width:60px" ></image>
+                <text>{{filename[1]}}</text>
+              </div>
+            </div>
+            <textarea 
+            class="input-text" 
+            if="{{Switch}}" 
+            placeholder="请输入您想要修改的文章(最少300字哦~)" 
+            onchange="textChange">{{textContent}}</textarea>
+        </div> 
+         <div class="buttonBox">
+              
+              <div class="btn" onclick='fileSelect' disabled="{{use}}">
+                <image src="{{upload}}" style="resize-mode:contain;height:70px;width:70px"></image>
+                <text>上传文件</text>
+              </div>
+              <div class="btn" onclick='fileSubmit'>
+                <image src="{{submit}}" style="resize-mode:contain;height:70px;width:70px"></image>
+                <text>提交</text>
+              </div>
+              <!-- <div class="btn" >
+                <image src="../Common/improvement.png" style="resize-mode:contain;height:70px;width:70px"></image>
+                <text>进步情况</text>
+              </div>
+              <div class="btn" >
+                <image src="../Common/improvement.png" style="resize-mode:contain;height:70px;width:70px"></image>
+                <text>未开发</text>
+              </div> -->
+        </div>
+         <div class="buttonBox">
+              
+              <div class="btn" onclick="gotoValue">
+                <image src="../Common/improvement.png" style="resize-mode:contain;height:70px;width:70px"></image>
+                <text>进步情况</text>
+              </div>
+              <div class="btn"  onclick="Refresh" >
+                <image src="../Common/refresh.png" style="resize-mode:contain;height:70px;width:70px"></image>
+                <text>刷新</text>
+              </div>
+        </div>
+
+    </div>
+</template>
+
+<style>
+.home-page {
+  flex-direction: column;
+  align-items: center;
+  width: 100%
+}
+.mask{
+    background-color: #f7d7a7;
+    position: absolute;
+    width: 100%;
+    height: 150px;
+    z-index: 0;
+    border-bottom: 3px solid #ccc;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items:flex-start;
+}
+.input-box {
+  z-index: 999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  margin-top: 70px;
+  height: 750px;
+  width: 600px;
+  border-radius: 30px;
+  border: 1px solid #ccc
+}
+.file{
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  height: 100px;
+  width: 100%;
+  border: 3px solid #ccc;
+  border-radius: 10px;
+  padding: 10px
+}
+.input-text {
+  height: 600px;
+  width: 400px;
+  font-size: 30px;
+  background-color: #ffffff;
+  padding-top: 10px;
+
+}
+.buttonBox{
+  display: flex;
+  flex-direction: row;
+  flex-wrap:wrap;
+  width: 100%;
+  justify-content: space-around;
+  margin-top: 60px
+
+}
+.btn{
+  border-radius: 15px;
+  color:#000000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 80px
+}
+
+</style>
+
+<script>
+/* eslint-disable semi */
+/* eslint-disable indent */
+/* eslint-disable linebreak-style */
+// adb logcat -s LOGCAT_CONSOLE
+//chcp 65001
+import router from '@system.router'
+const file = require('@system.file')
+const account = require('@service.account')
+const media = require('@system.media')
+const fetch = require('@system.fetch')
+const request = require('@system.request')
+const prompt = require('@system.prompt')
+const storage = require('@system.storage')
+import util from '../utils/util.js'
+export default {
+  data:{
+    uri:'',
+    Switch:true,
+    filename:[],
+    textContent:'',
+    upload:'../Common/upload.png',
+    submit:'../Common/submit.png',
+    use:false,
+    openid: '',
+    clientCode:'',
+    token:'',
+    isDelete:false,
+    Day:'周六',
+    Weather:'下雨',
+    backfix:'doc'
+    
+  },
+
+     onInit(){
+      
+       var openid=this.$app.getAppData('openid');
+       var clientCode=this.$app.getAppData('clientCode');
+       var token=this.$app.getAppData('token');
+       var day=this.$app.getAppData('day');
+       var weather=this.$app.getAppData('weather');
+
+       console.log("home page",day,weather)
+       this.Weather=weather;
+       this.Day=day;
+
+      console.log("用户信息：",openid,clientCode,token)
+
+       var timestamp = (new Date()).valueOf();
+       var randomCode=util.hex_sha1("RandomCode",openid,timestamp,clientCode)
+       var signed=util.hex_sha1("SIGN",openid,randomCode,token)
+
+      console.log("加密信息：",randomCode,signed)
+
+       this.openid=openid;
+       this.clientCode=clientCode;
+       this.token=token;
+
+        var that=this;
+        this.autoSelect();
+     //  console.log(util.hex_sha1("abc") == "a9993e364706816aba3e25717850c26c9cd0d89d")
+    //  account.isLogin({
+    //   success: function (data) {
+    //     console.log('data.isLogin=' + data.isLogin)
+    //     console.log('handling success' + JSON.stringify(data))
+    //   },
+    //   fail: function(data, code) {
+    //     console.log(`handling fail, code = ${code}`)
+    //   }
+    // });
+    
+    },
+    test(evt){
+      if(this.Switch==true){
+        console.info(
+      `触发事件：类型：${evt.type}, 参数： ${JSON.stringify(evt.detail)}`
+    )
+      }
+    },
+    emitEvent () {  
+      this.$emit('test1', { params: '111' })  
+    },
+    navigateTo1(){
+      if(this.$page.name!='Home')
+        router.push({
+            uri: '/Home',
+        })
+    },
+    navigateTo2(){
+      
+        router.push({
+            uri: '/Mypage',
+        })
+    },
+    textChange(e){
+      var text=e.text;
+      this.textContent=text
+      this.submit='../Common/submit.png';
+      if(text!=''){
+        this.upload='../Common/ban-upload.png';
+        this.use=true
+      }
+      else{
+        this.upload='../Common/upload.png';
+        this.use=false
+      }
+    },
+    fileSelect(){
+      var that=this;
+      if(this.textContent!=''){
+        prompt.showToast({
+          message: '请先将文本框的内容删除后再上传文件哦！'
+        })
+        return
+      }
+        media.pickFile({
+         
+         success: function(data) {
+          that.submit='../Common/submit.png';
+          console.log('成功',data)
+          var uri=data.uri;
+          var name=data.name;
+          var tmp=name.split('.')
+          var backfix=tmp[tmp.length-1]
+          console.log("后缀",backfix,tmp.pop())
+          if(backfix!='docx'&&backfix!='doc'&&backfix!='pdf'){
+             prompt.showToast({
+              message: '目前仅支持doc/docx/pdf文档哦~请重新选择！'
+            })
+            return
+          }
+          that.backfix=backfix;
+          that.uri=uri;
+          that.filename=[];
+          that.filename[0]=name;//带后缀的
+          that.filename[1]='';
+          for(let i=0;i<tmp.length;i++)that.filename[1]+=tmp[i];//不带后缀的
+          that.Switch=false;
+          that.isDelete=false;
+        },
+         fail: function(data, code) {
+        console.log(`handling fail, code = ${code}`)
+        }
+        })
+     },
+     autoSelect(){
+       var that=this;
+       file.access({
+        uri: 'internal://mass/Tofile',
+        success: function(data) {
+          console.log(`handling success`)
+        },
+        fail: function(data, code) {
+          file.mkdir({
+            uri: 'internal://mass/Tofile',
+            success: function(data) {
+              console.log(`handling success`)
+            },
+            fail: function(data, code) {
+              console.log(`handling fail, code = ${code}`)
+            }
+          })
+        }
+      })
+       file.list({
+          uri: 'internal://mass/Tofile',
+          success: function(data) {
+            console.log(data)
+            
+            that.submit='../Common/submit.png';
+            if(data.fileList.length==0)return;
+            var uri=data.fileList[0].uri;
+
+            var tmp=uri.split('/')
+            var name=tmp[tmp.length-1]
+            that.filename=[];
+            var fileN=name.split('.')
+            that.filename[0]=name;//带后缀的
+            var backfix=fileN[1];
+            if(backfix!='docx'&&backfix!='doc'&&backfix!='pdf'){
+             prompt.showToast({
+              message: '目前仅支持doc/docx/pdf文档哦~请重新选择！'
+            })
+            return
+          }
+
+
+           that.uri=uri;
+           that.filename[1]=fileN[0];
+           that.Switch=false;
+           that.isDelete=true;
+        },
+          fail: function(data, code) {
+            console.log(`handling fail, code = ${code}`)
+        }
+      })
+     },
+     deleteDuplicate(){
+       var that=this;
+       file.delete({
+        uri: that.uri,
+        success: function(data) {
+          console.log('delete success')
+        },
+        fail: function(data, code) {
+          console.log(`delete fail, code = ${code}`)
+        }
+    })
+     },
+     fileSubmit(){
+       if(this.textContent==''&&this.filename.length==0){
+        //  console.log("******",this.textContent,this.filename.length);
+         prompt.showToast({
+            message: '您还没有添加任何文件或文字哦~'
+        });
+        return;
+       }
+        prompt.showToast({
+            message: '文件正在上传，请等待'
+        })
+        
+
+        var that=this;
+
+        var timestamp = (new Date()).valueOf();
+        var randomCode=util.hex_sha1("RandomCode",this.openid,timestamp,this.clientCode);
+        var signed=util.hex_sha1("SIGN",this.openid,randomCode,this.token,);
+
+       if(this.textContent==''){
+         
+        if(this.filename!=[]){
+
+        var uri=this.uri;
+        var name=this.filename[0];
+        console.log("谁在搞我：",this.filename)
+        console.log(uri,name)
+            request.upload({
+                url: 'http://epaper.codesdream.com/file',
+                header:{
+                  'X-Requested-With':'',
+                  'timestamp':timestamp,
+                  'openid':that.openid,
+                  'signed':signed
+                },
+                files: [
+                  {
+                    uri: uri,
+                    name: 'file',
+                    filename: name
+                  }
+                ],
+                success: function(res) {
+                  console.log('*******',res)
+                  var data=JSON.parse(res.data) ;
+                  console.log(data)
+                  console.log("文件已上传，以下是返回信息：",data.fileId,data.filename)
+                  that.deleteDuplicate();
+                  that.createTask(data.fileId,that.filename[1])
+                },
+                fail: function(data, code) {
+                  console.log(`handling fail, code = ${code}`)
+                  prompt.showToast({
+                    message: '上传失败，请检查网络~'
+                    })
+                }
+              })
+        }
+       }
+       else{
+         //TO-DO 文本接口 this.createTask(data.fileId,'文本段落')
+         if(this.textContent.length<300){
+           prompt.showToast({
+               message: '请至少上传300字以上的文本哦~'
+            })
+            return;
+         }
+          //  console.log(this.textContent.length)
+          fetch.fetch({
+            url: 'http://epaper.codesdream.com/file/text',
+            method:'POST',
+            header:{
+                    'X-Requested-With':'',
+                    'timestamp':timestamp,
+                    'openid':that.openid,
+                    'signed':signed
+                    // 'Content-Type':'application/json' 默认text/plain
+                  },
+            responseType: 'json',
+
+            data:that.textContent,   //文本框内容
+            
+            success: function(res) {
+              console.log("success",res)
+                console.log(res.data.fileId)
+                var data=res.data;
+                console.log(data)
+                console.log("文件已上传，以下是返回信息：",data.fileId,'文本段落')
+
+                that.createTask(data.fileId,'文本段落')
+            },
+            fail: function(data, code) {
+               prompt.showToast({
+                    message: '上传失败，请检查网络~'
+                })
+            }
+          })
+      }
+      
+       
+
+     },
+     createTask(fileId,filename){
+       var that=this;
+       if(fileId==undefined)return
+       console.log("正在创建任务，文件id："+fileId)
+
+       var timestamp = (new Date()).valueOf();
+       var randomCode=util.hex_sha1("RandomCode",this.openid,timestamp,this.clientCode);
+       var signed=util.hex_sha1("SIGN",this.openid,randomCode,this.token,);
+
+       fetch.fetch({
+        url: 'http://epaper.codesdream.com/task',
+        method:'POST',
+        header:{
+                'X-Requested-With':'',
+                'timestamp':timestamp,
+                'openid':that.openid,
+                'signed':signed,
+                'Content-Type':'application/json'
+              },
+        responseType: 'json',
+        data:{
+          'fileId':fileId
+        },
+        success: function(response) {
+          console.log(response)
+          var data=response.data
+
+           var list={fileId:null,name:'',finished:null,taskId:'',score:'暂无结果',
+           condition:'正在处理',content:'还在处理中哦！暂无结果请稍后',
+           select:false,progress:0};
+           list.fileId=fileId;
+           list.name=filename;
+           list.finished=data.finished;
+           list.taskId=data.taskId;
+           console.log("添加子项：",list)
+
+           that.new_file_stack.push(list);
+           console.log("new_file_stack:",that.new_file_stack)
+           
+         
+           that.submit='../Common/submit.png'
+           that.Switch=true;
+           that.submit='../Common/submitted.png';
+            prompt.showToast({
+              message: '文件已上传成功，可以在“我的”查看处理进度'
+
+            })
+             that.textContent=''
+
+        },
+        fail: function(data, code) {
+          
+        }
+       })
+     },    
+    gotoValue(){
+      console.log(this.FILELIST)
+      router.push({
+            uri: '/Improvement',
+        })
+    },
+    Refresh(){
+      this.autoSelect();
+    }
+  }
+</script>

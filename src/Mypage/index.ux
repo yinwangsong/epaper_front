@@ -1,0 +1,754 @@
+
+<import name="my-circle" src="apex-ui/components/circle/index"></import>
+
+<template>
+  <!-- <div class="contain"> -->
+         <refresh class="contain" offset="100px" onrefresh="refresh" refreshing="{{isRefreshing}}" type="{{refreshType}}">
+         <div class="head">
+          <div class="Info"><image src="{{headInfo}}" 
+          style="resize-mode:cover;height:100px;width:100px;border-radius:50px"
+          onclick="switchHead"
+          ></image> -->
+          <text style="margin:10px 10px;font-size:30px;font-weight: bold;">尊敬的会员</text>
+          </div>
+          
+          <!-- <div style="margin-left:260px;margin-top:80px">
+              <image src="../Common/trashbin.png" onclick="delete" style="resize-mode:cover;height:40px;width:40px;margin:10px"></image>
+              <image src="../Common/computer.png" onclick="sendComputer" style="resize-mode:cover;height:40px;width:40px;margin:10px"></image>
+              <image src="../Common/printer.png" onclick="startDiscovery" style="resize-mode:cover;height:40px;width:40px;margin:10px"></image>
+          </div> -->
+          <!-- <text style="color:white;line-height:50px;font-size:40px;">您已提交5篇</text>
+          <text>其中1篇在审</text> -->
+
+       </div>
+                  <div class="Historytitle">
+        <div >
+           <!-- <image src="../Common/History.png" style="resize-mode:cover;height:40px;width:40px;"></image> -->
+           <text style="font-size:30px;margin-left:10px;font-weight: bold;" onclick="clearAll">足迹</text> 
+        </div>
+        <div class="btnGroup">
+              <div class="btn1 {{color1}} " onclick="switchTo"><text style="color:{{color2}};font-weight: bold;font-size:28px">选择</text></div>
+              <div class="btn2 {{color2}} " onclick="switchBack"><text style="color:{{color1}};font-weight: bold;font-size:28px">删除文章</text></div>
+          </div>
+        <!-- <div> 
+            <image src="../Common/setup.png" 
+            style="resize-mode:cover;height:40px;width:40px;"
+            onclick="isEdit"></image>
+        </div> -->
+      </div>
+      <div class="history" >
+          <div class="EachItem"  onclick="{{edit ? isEdit($idx) : selectMode($item)}}" for="{{history}}">
+            <div style="display:flex;flex-direction:row;">
+                <div class="bar_{{$item.finished ? 1:2}}"> </div>
+                 <div class="ItemContent">
+                      <block if="{{$item.select === true}}" >   <!--版本1-->
+                          <div class="ItemName selectColor">
+                        <div >
+                           
+                            <text style="font-size:30px;font-weight: bold;">{{$item.name}}</text>
+                        </div>
+                        <div> 
+                            <text style="margin-right:0px;">{{$item.score}}</text>
+                            <image src="../Common/star3.png" 
+                            style="resize-mode:contain;height:30px;width:40px;margin-top: 10px;margin-left:0px;">
+                            </image>
+                        </div>
+                     </div>
+                      </block>
+                      <block else >                             <!--版本2-->
+                          <div class="ItemName">
+                        <div >
+                           
+                            <text style="font-size:30px;font-weight: bold;">{{$item.name}}</text>
+                        </div>
+                        <div> 
+                            <text style="margin-right:0px;">{{$item.score}}</text>
+                            <image src="../Common/star3.png" 
+                            style="resize-mode:contain;height:30px;width:40px;margin-top: 10px;margin-left:0px;">
+                            </image>
+                        </div>
+                     </div>
+                      </block>
+                     
+                     
+                    <text style="font-size:28px;margin-top:20px;margin-bottom:40px;text-indent:10px;line-height:50px">{{$item.content}}</text>
+                    <div class="ItemInfo">
+                        <div style="margin-left:20px" >
+                            <my-circle show="{{!$item.finished}}" percent="{{$item.progress}}" size="40" stroke-width="6" trail-width="5">
+                            </my-circle>
+                            <image src="../Common/trash.png" 
+                            show="{{$item.finished}}" 
+                            style="resize-mode:contain;height:50px;width:40px"
+                            onclick="{{delete($item)}}"></image>
+                        </div>
+                    <text style="color:#ccc;">{{$item.condition}}</text>
+                   </div>
+                </div>
+                <div class="shadow2"></div>
+            </div>
+              
+            <div class="shadow"></div>
+          </div> 
+      </div>
+      </refresh>
+      <!-- <div class="shadow_1"></div> -->
+     
+      
+    
+         <!-- </refresh>  -->
+
+      
+
+  <!-- </div> -->
+</template>
+
+<style>
+
+.contain{
+    display: flex;
+    width: 100%;
+    height: 3000px;
+    flex-direction: column;
+}
+.refresh_1{
+    display: flex;
+    width: 100%;
+
+    padding: 0px;
+    margin: 0px;
+  }
+.shadow2{
+    height: 99.9% ;
+    width: 6px;
+    background: linear-gradient(to right,rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+    margin-top: 0px;
+    /* border-bottom-left-radius: 60px;
+    border-bottom-right-radius: 60px; */
+}
+.shadow {
+    height: 12px ;
+    width: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.09), rgba(0, 0, 0, 0));
+    margin-top: 0px;
+  }
+  .head{
+    background-color: #f7d7a7;
+    width: 100%;
+    height: 182px;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content: center;
+    border-bottom: 3px solid #ccc;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+  }
+.Info{
+    display: flex;
+    flex-direction:column;
+    align-items:center;
+
+}
+.btnGroup{
+
+    display: flex;
+    flex-direction: row;
+}
+.btn1{
+    width:160px;
+    height: 70px;
+   border-bottom-left-radius: 30px;
+   border-top-left-radius: 30px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+.btn2{
+    width:160px;
+    height: 70px;
+   border-bottom-right-radius: 30px;
+   border-top-right-radius: 30px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+.black{
+    background-color:rgb(75, 74, 74);
+}
+.white{
+    background-color: #ffffff;
+}
+.Historytitle{
+    width:100%;
+    padding: 20px 10px;
+    /* margin-top: 20px; */
+    /* border-bottom: 1px solid #ccc; */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.history{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.EachItem{
+    display: flex;
+    flex-direction: column;
+    width: 88%;
+    margin-top: 30px;
+
+}
+.EachItem text{
+    margin: 10px 10px;
+}
+.bar_1{
+    height: 100%;
+    background-color: #0ba10b;
+    width: 10px;
+}
+.bar_2{
+    height: 100%;
+    background-color:rgb(201, 29, 29);
+    width: 10px;
+}
+.ItemContent{
+    display: flex;
+    flex-direction: column;
+    width: 644px
+}
+.ItemName{
+    display: flex;
+    flex-direction: row;
+    /* align-content:center; */
+    justify-content: space-between;
+   
+}
+.selectColor{
+    background: linear-gradient(to right,rgba(13, 189, 121, 0.09), rgba(0, 0, 0, 0));  
+}
+.ItemName image{
+    margin-top: 10px;
+    margin-left: 10px;
+}
+.ItemInfo{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.select_EachItem{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+}
+.select_box{
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    padding:0px
+}
+.opacity {
+    animation-name: Opacity;
+    animation-duration: 1000ms;
+  }
+  .colorB2W {
+    animation-name: Color;
+    animation-duration: 500ms;
+  }
+  .colorW2B {
+    animation-name: Color2;
+    animation-duration: 500ms;
+  }
+  @keyframes Color {
+    from {
+      background-color:rgb(75, 74, 74);
+    }
+    to {
+      background-color: #ffffff;
+    }
+  }
+@keyframes Color2 {
+    from {
+      background-color:#ffffff;
+    }
+    to {
+      background-color: rgb(75, 74, 74);
+    }
+  }
+  @keyframes Opacity {
+    from {
+      opacity: 0.9;
+    }
+    to {
+      opacity: 0.1;
+    }
+  }
+</style>
+
+<script>
+import router from '@system.router'
+const prompt = require('@system.prompt')
+var bluetooth = require("@system.bluetooth")
+const media = require('@system.media')
+const fetch = require('@system.fetch')
+const storage = require('@system.storage')
+const file=require('@system.file')
+import util from '../utils/util.js'
+export default {
+    data: {
+        deviceId:'',
+        connected:'',
+        serviceId:'',
+        headInfo:'../Common/cute.jpg',
+        history:[],
+        history_dupli:[],
+        edit:false,
+        editList:[],
+        connected: false,
+        notifyEnabled: false,
+        deviceId: '',
+        readCharacteristicId: '',
+        writeCharacteristicId: '',
+        notifyCharacteristicId: '',
+        selectArr:[],
+        color2: 'black',
+        color1: 'white',
+        bcolor:[],
+        isRefreshing: false,
+        refreshType: 'auto'
+    },
+   
+    onInit() {
+        var that=this;
+
+        var openid=this.$app.getAppData('openid');
+        var clientCode=this.$app.getAppData('clientCode');
+        var token=this.$app.getAppData('token');
+        var timestamp = (new Date()).valueOf();
+        var randomCode=util.hex_sha1("RandomCode",openid,timestamp,clientCode)
+        var signed=util.hex_sha1("SIGN",openid,randomCode,token)
+        
+        storage.get({
+        key: 'FILE_LIST',
+        success: function (data) {
+            if(data!=''){
+                var fileL=JSON.parse(data);
+                that.history_dupli=fileL;
+                console.log("文件列表",fileL)
+                that.history=fileL;
+                var new_file = that.newFileCheck(fileL);
+            }
+           
+
+            console.log("WrongnewFile",that.new_file_stack)
+            if(new_file.length!=0){
+                that.bravo(new_file)
+            }
+        }
+        })
+
+    },
+
+    newFileCheck(fileL){
+         var new_file=this.new_file_stack;
+         console.log(new_file)
+            if(new_file.length==0){
+
+                for(let i=0;i<fileL.length;i++){
+                 if(fileL[i].finished==false)new_file.push(fileL[i])
+
+                }
+                return new_file
+
+            }else{
+                var tmp=[]
+                for(let i=0;i < new_file.length;i++){
+
+                    if(new_file[i].finished==false)tmp.push(new_file[i]);
+
+                }
+                return tmp;
+            }
+    },
+    switchTo(){
+
+      this.color1 = 'black'
+
+      this.color2 = 'white'
+
+      this.edit=true;
+      //this.selectArr=Array.from(this.history, x => 0);
+      this.editList=[];
+ 
+    },
+    
+
+    isEdit(e){
+         console.log(e)
+        var history=this.history
+        if(history[e].finished==false){
+            prompt.showToast({
+             message:'文章还未处理好哦~'
+        })
+        return
+        }
+        if(history[e].select==true){
+            history[e].select=false;
+
+            this.editList = this.editList.filter(function(item) {return item != e});
+            console.log(this.editList);
+            }
+            else{
+                history[e].select=true
+                this.editList.push(e)
+                console.log(this.editList);
+            }
+        this.history=history
+    },
+
+    switchBack(){
+
+      this.color1 = 'white';
+
+      this.color2 = 'black';
+     
+      this.edit=false;
+      var history=this.history
+      var editList=this.editList
+     for(let i=0;i<history.length;i++)history[i].select=false;
+     if(editList.length!=0){
+         prompt.showToast({
+             message:'文章已删除'
+        })
+        var tmp=[];
+        for(let i=0;i<history.length;i++){
+            if(editList.indexOf(i)==-1)tmp.push(history[i])
+        }
+        console.log(tmp)
+        this.editList=[];
+        this.history=tmp;
+        }
+        else{
+            prompt.showToast({
+             message:'您未选择任何文章哦~'
+        })
+        }
+    },
+    changeType () {
+      this.refreshType = this.refreshType === 'auto' ? 'pulldown' : 'auto'
+    },
+    refresh (e) {
+      const self = this
+      // 更新刷新状态（属性refreshing的值从false改为true会触发refresh组件的状态更新，反之亦然）
+        var new_file=this.newFileCheck(self.new_file_stack);
+            if(new_file.length!=0){
+                self.bravo(new_file)
+            }
+      self.isRefreshing = e.refreshing
+      setTimeout(function(){
+        // 关闭刷新状态
+        self.isRefreshing = false
+        prompt.showToast({
+          message: '刷新完成'
+        })
+      },3000)
+    },
+     stopRefresh () {
+      this.isRefreshing = false
+    },
+    delete(e,evt){
+        
+        var taskId=e.taskId;
+
+        evt.stopPropagation()
+        
+        var history = this.history.filter(function(item) {
+             return item.taskId != taskId
+        });
+        this.history=history;
+        var tmp=history;
+        console.log("tmp*****",tmp)
+        this.history_dupli=history;
+        //  var FILE_LIST_value=JSON.stringify(tmp) 
+        //             console.log(FILE_LIST_value,tmp)
+        //            storage.set({
+        //             key: 'FILE_LIST',
+        //             value: FILE_LIST_value,
+        //             success:function(res){
+        //                 console.log("删除成功",res)
+        //             }
+        //            })
+    },
+   selectMode(e) {
+
+        if (!e.finished) {
+            prompt.showToast({
+                message: '文章还未处理完哦~请等待..'
+            })
+            return;
+        }
+        var c_taskId = e.taskId;
+        var c_name = e.name;
+        var c_time = e.condition;
+
+        var that=this;
+        prompt.showContextMenu({
+            itemList: ['启发模式', '评价模式', '预览报告'],
+            itemColor: 'black',
+            success: function (data) {
+                console.log(data)
+                if (data.index == 0) {
+                    router.push({
+                        uri: '/Inspire_result',
+                        params: {
+                            c_taskId: c_taskId,
+                            c_name: c_name,
+                            c_time: c_time
+                        }
+                    })
+                }
+                else if (data.index == 1) {
+                    router.push({
+                        uri: '/Value_result',
+                        params: {
+                            c_taskId: c_taskId
+                        }
+                    })
+                }
+                else {
+                    console.log("测试",e)
+                  that.downloadReport(e)
+                }
+            },
+            cancel: function () {
+                console.log('handling cancel')
+            },
+            fail: function (data, code) {
+                console.log(`handling fail, code = ${code}`)
+            }
+        })
+    },
+    downloadReport(e){
+        //e就是item了
+        console.log("文件信息",e)
+        var openid = this.$app.getAppData('openid');
+        var timestamp = (new Date()).valueOf();
+        var clientCode = this.$app.getAppData('clientCode');
+        var randomCode = util.hex_sha1("RandomCode", openid, timestamp, clientCode);
+        var token = this.$app.getAppData('token');
+        var signed = util.hex_sha1("SIGN", openid, randomCode, token);
+        prompt.showToast({
+            message: '请稍等，马上为您生成报告~'
+        }),
+          fetch.fetch({
+                        url: 'http://epaper.codesdream.com/report/generate',
+                        method: 'GET',
+                        header: {
+                            'X-Requested-With': '',
+                            'timestamp': timestamp,
+                            'openid': openid,
+                            'signed': signed,
+                            'Content-Type': 'application/json'
+
+                        },
+                        responseType: 'text',
+
+                        data: {
+                            'taskId': e.taskId
+                        },
+
+                        success: function (data) {
+                            prompt.showToast({
+                                message: '报告正在生成中~'
+                            }),
+                                console.log("请求已发送，以下为返回信息:", e.taskId, data)
+                            if(data.code==200){
+                            fetch.fetch({
+                                url: 'http://epaper.codesdream.com/file/download',
+                                method: 'GET',
+                                header: {
+                                    'X-Requested-With': '',
+                                    'timestamp': timestamp,
+                                    'openid': openid,
+                                    'signed': signed,
+                                    'Content-Type': 'application/json'
+                                },
+                                responseType: 'file',
+
+                                data: {
+                                    'fileId': data.data
+                                },
+                                success: function(res){
+                                    console.log("以获得返回文件",res)
+                                    file.move({
+                                        srcUri: res.data,
+                                        dstUri: 'internal://mass/report',
+                                        success: function(uri) {
+                                            console.log('move success:',uri)
+                                            router.push({
+                                                uri:uri
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                         }else{
+                              prompt.showToast({
+                                message: '请求失败>_<请重试'
+                            })
+                         }
+                        },
+                        fail: function (data, code) {
+                            prompt.showToast({
+                                message: '请求失败>_<请重试'
+                            })
+                            console.log(data, code)
+                        }
+                    })
+    },
+    bravo(fileList){
+
+        var openid=this.$app.getAppData('openid');
+        var clientCode=this.$app.getAppData('clientCode');
+        var token=this.$app.getAppData('token');
+
+        var x=0;
+        var result=[];
+        var that=this;
+
+        function getData(item){
+            return new Promise(function(resolve,resject){
+                console.log(item)
+                util.getCondition({
+                    taskId:item.taskId,
+                    clientCode:clientCode,
+                    openid:openid,
+                    token:token
+                    }).then(res=>{
+
+                      console.log("任务状态：",res.data.finished)
+                      item.progress=res.data.progress*100;
+                      var description=res.data.description+'...';
+                        if(res.data.finished==true){
+
+                            var timestamp = (new Date()).valueOf();
+                            var randomCode=util.hex_sha1("RandomCode",openid,timestamp,clientCode)
+                            var signed=util.hex_sha1("SIGN",openid,randomCode,token)
+
+                                 fetch.fetch({                           
+                                    url: 'http://epaper.codesdream.com/task/result',
+                                    method:'GET',                   
+                                    header:{
+                                            'X-Requested-With':'',
+                                            'timestamp':timestamp,
+                                            'openid':openid,
+                                            'signed':signed,
+                                            'Content-Type':'application/json'
+                                            },  
+                                    data:{
+                                    'taskId':item.taskId
+                                    },
+                                    responseType: 'json',
+                                    success: function(res){
+                                            var data=res.data;
+                                            var date=new Date()
+                                            var month = date.getMonth()+1;
+                                            var day = date.getDate();
+                                            var hour = date.getHours();
+                                            var str=month+'/'+day+' '+hour+'点'
+                                            console.log("******",res)
+                                            item.score=parseInt(data.score);
+                                            if(data.score=="Infinity")item.score=89;
+                                            item.condition="更新于"+str;
+                                            item.finished=true;
+                                            item.content=description;
+                                            resolve(item)                       
+                                    }          
+                            })
+                        
+                        }else{
+                            resolve(item)
+                        }
+                    });
+            })
+        }
+        function loopArray(fun,str){
+            fun(str).then((res) => {
+                x++;
+                //result.push(res)
+                console.log(res)
+                var i=0;
+               for(;i<that.history_dupli.length;i++){
+                   console.log(i)
+                   if(that.history_dupli[i].taskId==res.taskId){
+                       that.history_dupli[i]=res;
+                       break;
+                   }
+               };
+                if(i==that.history_dupli.length) that.history_dupli.push(res);
+                if(res.finished==true){
+                   // that.new_file_stack.remove(x-1)
+                   var tmp=that.new_file_stack
+                    var newStack = tmp.filter(function(item) {
+                        return item.taskId != res.taskId
+                    });
+                    that.new_file_stack=newStack;
+                    console.log("删除了嘛？",that.new_file_stack)
+               };
+                if(x<fileList.length){
+                    loopArray(getData,fileList[x])
+                }
+                else{
+                    
+                    var FILE_LIST_value=JSON.stringify(that.history_dupli) 
+
+                    that.history=that.history_dupli;
+                    
+                //     console.log(FILE_LIST_value,that.history_dupli,x)
+                //    storage.set({
+                //     key: 'FILE_LIST',
+                //     value: FILE_LIST_value,
+                //     success:function(res){
+                //         console.log("成功添加",res)
+                //     }
+                //    })
+                //    that.history=that.history_dupli.reverse();
+                }
+
+
+            })            
+        }
+        loopArray(getData,fileList[0]);
+        
+    },
+    clearAll(){
+        var tmp=[]
+        var FILE_LIST_value=JSON.stringify(tmp) 
+        console.log(FILE_LIST_value)
+                   storage.set({
+                        key: 'FILE_LIST',
+                        value: FILE_LIST_value,
+                        success:function(res){
+                            console.log("成功删除",res)
+                        }
+                   })
+        this.history=[]
+    },
+    onDestroy() {
+        console.log("I am destroyed")
+        console.log(this.history)
+        var FILE_LIST_value=JSON.stringify(this.history) 
+        console.log(FILE_LIST_value)
+                   storage.set({
+                    key: 'FILE_LIST',
+                    value: FILE_LIST_value,
+                    success:function(res){
+                        console.log("成功添加",res)
+                    }
+                   })
+    },
+}
+</script>

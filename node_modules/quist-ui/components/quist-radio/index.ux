@@ -1,0 +1,121 @@
+<template>
+  <div class="quist-radio">
+    <block for="(index, row) in options">
+      <div class="quist-radio__item {{common ? '' : 'quist-radio__item--isRight'}}" @click="click(row)">
+        <text if="!common" style="{{label()}}">{{row.label || row}}</text>
+        <stack class="quist-radio__check {{row.disabled ? 'quist-radio__item--disabled' : ''}}" style="{{wrapper(replaceValue === (row.value || row) ? checkedColor : checkColor, replaceValue === (row.value || row) ? checkedBorderColor : checkBorderColor)}}" if="common">
+          <div class="quist-radio__thumb {{replaceValue === (row.value || row) ? 'quist-radio__thumb--open' : 'quist-radio__thumb--close'}}" style="{{inner(replaceValue === (row.value || row) ? checkedColor : checkColor)}}"></div>
+        </stack>
+        <image if="!common && (replaceValue === (row.value || row))" src="{{checkIcon}}" class="quist-radio__img"></image>
+        <text if="common" class="{{row.disabled ? 'quist-radio__item--disabled' : ''}}" style="{{label()}}">{{row.label || row}}</text>
+      </div>
+    </block>
+  </div>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-radio/index.less";
+</style>
+
+<script>
+  import { CHECK } from './image'
+  export default {
+    props: {
+      value: String,
+      options: {
+        type: Array
+      },
+      labelColor: {
+        type: String,
+        default: '#000000'
+      },
+      common: {
+        type: Boolean,
+        default: false
+      },
+      checkColor: {
+        type: String,
+        default: '#FFFFFF'
+      },
+      checkedColor: {
+        type: String,
+        default: '#2998F9'
+      },
+      checkBorderColor: {
+        type: String,
+        default: '#CACBCC'
+      },
+      checkedBorderColor: {
+        type: String,
+        default: '#2998F9'
+      },
+      labelStyle: {
+        type: Object,
+        default: {}
+      },
+      wrapperStyle: {
+        type: Object,
+        default: {}
+      },
+      innerStyle: {
+        type: Object,
+        default: {}
+      },
+      icon: {
+        type: String,
+        default: ''
+      }
+    },
+    data() {
+      return {
+        replaceValue: this.value,
+        checkIcon: ''
+      }
+    },
+    onInit() {
+      this.init()
+    },
+    onReady() {
+      this.$watch('value', 'init')
+      this.$watch('replaceValue', 'change')
+    },
+    init() {
+      this.replaceValue = this.value
+      this.checkIcon = this.icon ? this.cion : CHECK
+    },
+    click(data) {
+      if (typeof data === 'object') {
+        if (!data.disabled) {
+          this.replaceValue = data.value
+        }
+      }
+      else {
+        this.replaceValue = data
+      }
+    },
+    change() {
+      this.$emit('onChange', { values: this.replaceValue })
+    },
+    label() {
+      let baseStyle = {
+        color: this.labelColor
+      }
+      return Object.assign(baseStyle, this.labelStyle)
+    },
+    wrapper(backgroundColor, borderColor) {
+      let baseStyle = {
+        backgroundColor,
+        borderColor
+      }
+      return Object.assign(baseStyle, this.wrapperStyle)
+    },
+    inner(borderColor) {
+      let baseStyle = {
+        borderColor
+      }
+      return Object.assign(baseStyle, this.innerStyle)
+    }
+
+  }
+</script>

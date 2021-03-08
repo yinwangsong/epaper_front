@@ -1,0 +1,132 @@
+<template>
+  <div>
+    <stack show="{{visible}}" style="{{layoutStyle()}}">
+      <swiper class="{{animationClass}}" indicator="{{false}}" interval="{{time}}" autoplay="{{isAutoPlay}}" loop="{{isLoop}}" onChange="swiperChange">
+        <div class="quist-swiper-item" for="{{options}}" @click="choose($idx)">
+          <image class="quist-swiper-image" src="{{$item}}" />
+        </div>
+      </swiper>
+      <div if="{{showIndicator && type === ''}}" class="swiper-pagination">
+        <div class="pagination-item" style="{{currentNav === $idx ? indicatorSelectedStyle() : indicatorColorStyle()}}" for="{{options}}"></div>
+      </div>
+      <div elif="{{showIndicator && type === 'pop'}}" class="pagination-number">
+        <text class="number-text" style="color: {{popPaginationColor}}">{{currentNav + 1}}/{{options.length}}</text>
+      </div>
+    </stack>
+  </div>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-swiper/index.less";
+</style>
+
+<script>
+  export default {
+    props: {
+      visible: {
+        type: Boolean,
+        default: false
+      },
+      isAutoPlay: {
+        type: Boolean,
+        default: false
+      },
+      time: {
+        type: Number,
+        default: 3000
+      },
+      options: {
+        type: Array
+      },
+      showIndicator: {
+        type: Boolean,
+        default: true
+      },
+      indicatorColor: {
+        type: String,
+        default: '#E1E1E1'
+      },
+      selectedColor: {
+        type: String,
+        default: '#1890ff'
+      },
+      type: {
+        type: String,
+        default: ''
+      },
+      isLoop: {
+        type: Boolean,
+        default: true
+      },
+      background: {
+        type: String,
+        default: 'rgba(0, 0, 0, 1)'
+      },
+      popPaginationColor: {
+        type: String,
+        default: '#ffffff'
+      }
+    },
+    data() {
+      return {
+        animationClass: '',
+        currentNav: 0,
+        numberCur: 0
+      }
+    },
+    onInit() {
+      this.toggleShow()
+      this.$watch(`visible`, 'toggleShow')
+    },
+    toggleShow() {
+      this.timeoutId && clearTimeout(this.timeoutId)
+      if (this.visible) {
+        this.animationClass = 'lightboxenter'
+      } else {
+        this.animationClass = 'lightboxleave'
+        this.timeoutId = setTimeout(() => {}, 600)
+      }
+    },
+    choose(i) {
+      this.$emit('onClick', i)
+    },
+    swiperChange(e) {
+      this.currentNav = e.index
+    },
+    indicatorColorStyle() {
+      let baseStyle = {
+	      backgroundColor: this.indicatorColor
+      }
+      return baseStyle;
+    },
+    indicatorSelectedStyle() {
+      let baseStyle = {
+        width: '15px',
+	      backgroundColor: this.selectedColor
+      }
+      return baseStyle;
+    },
+    layoutStyle() {
+      if (this.type === 'pop') {
+        return {
+          position: 'fixed',
+          right: 0,
+          top: 0,
+          bottom: 0,
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          backgroundColor: this.background,
+          animationFillMode: 'forwards'
+        }
+      } else {
+        return {
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          alignItems: 'center'
+        }
+      }
+    }
+  }
+</script>

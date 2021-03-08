@@ -1,0 +1,217 @@
+<import name="my-rating" src="../Components/rating/index"></import>
+<import name="my-icon" src="../Components/icon/index"></import>
+<template>
+
+  <div class="value-page">
+    <!-- 当前所上传的文章的评级-->
+    <div class="rating-block">
+      <my-icon type="star-half" size="48"></my-icon>
+      <text>本文评分</text>
+      <div if="{{show}}">
+          <my-rating icon="&#xe912;" value="{{score_5}}" disabled="false"></my-rating>
+      </div>
+
+    </div>
+    <!-- 不通顺句子数量、消极数量、积极数量-->
+    <div class="chart1">
+      <canvas
+        id="chart1"
+        style="width: 600px; height: 400px;"
+      ></canvas>
+    </div>
+    <!--个人能力雷达图-->
+    <div class="chart2">
+      <canvas
+        id="chart2"
+        style="width: 600px; height: 400px;"
+      ></canvas>
+    </div>
+  </div>
+
+</template>
+
+<style>
+.value-page{
+  align-items: center;
+  flex-direction: column; 
+  background-color: #faebd7;
+}
+.rating-block{
+  margin-top: 100px;
+  width: 500px;
+  background-color: #fff;
+  height: 100px;
+  border-radius: 30px;
+  align-items: center;
+  justify-content: center;
+}
+.chart1{
+  margin-top: 20px;
+  width: 650px;
+  height: 450px;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 30px;
+  background-color: #fff;
+}
+.chart2{
+  margin-top: 20px;
+  width: 650px;
+  height: 450px;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 30px;
+  background-color: #fff;
+}
+</style>
+
+
+<script>
+  import util from '../utils/util.js'
+  import Charts from "../Components/charts/qacharts-min.js";
+  const fetch = require('@system.fetch')
+  let $chart1 = null
+  let $chart2 = null
+
+  export default {
+    private: {
+        show:false,
+        score:null,
+        score_5:4,//百分制的score转化为五星制,
+        brokenSentencesCount:null,//不通顺
+        correctionScore:null,//文本纠错得分
+        dnnScore:null,//通顺
+        emotionScore:null,
+        negativeEmotionsCount:null,
+        positiveEmotionsCount:null,
+        wrongTextCount:null,//错误数量
+    },
+    public: {
+        c_taskId: null
+    },
+    onInit() {
+    
+    var timestamp = (new Date()).valueOf();
+    var taskId=this.c_taskId;
+
+    this.taskId=taskId;
+
+    var openid=this.$app.getAppData('openid');
+    var clientCode=this.$app.getAppData('clientCode');
+    var token=this.$app.getAppData('token');
+
+    var randomCode=util.hex_sha1("RandomCode",openid,timestamp,clientCode)
+    var signed=util.hex_sha1("SIGN",openid,randomCode,token)
+
+    var that=this;
+
+    let promise1 = new Promise(function (resolve, reject) {
+          fetch.fetch({
+                  url: 'http://epaper.codesdream.com/task/result',
+                  method:'GET',
+                  header:{
+                          'X-Requested-With':'',
+                          'timestamp':timestamp,
+                          'openid':openid,
+                          'signed':signed,
+                          'Content-Type':'application/json'
+                        },
+                  responseType: 'json',
+                  data:{
+                    'taskId':taskId
+                  },
+                  success: function(response) {
+                  var errorSet=response.data.stnResults;
+                  that.errorSet=errorSet;
+                  console.log("错误已获得",response)
+                      var data=response.data;
+                          that.score=data.score;//百分制的score转化为五星制,
+                          console.log(that.score)
+                          that.brokenSentencesCount=data.brokenSentencesCount,
+                          that.correctionScore=data.correctionScore,
+                          that.dnnScore=data.dnnScore,
+                          that.emotionScore=data.emotionScore,
+                          that.oralCount=data.oralCount,
+                          that.wrongTextCount=data.wrongTextCount
+                          resolve();
+                  },
+                  fail:function(res){
+                    reject(res)
+                  }
+                });
+     }).then(()=>{
+       console.log(that.score)
+       that.score_5=parseInt(that.score/100*5);
+       that.show=true
+       console.log(that.score_5)
+       that.initChart1();
+       that.initChart2();
+     })
+ 
+    },
+
+    initChart1() {
+      var that=this;
+      return new Promise((resolve, reject) => {
+        $chart1 = new Charts({
+          element: this.$element("chart1"),
+          type: "bar",
+          categories: ["不通顺", "错误数量","口语化"],
+          xAxis:{
+            axisName:{
+              text:"指标"
+            }
+          },
+          yAxis:{
+            axisName:{
+              text:"各指标数量"
+            }
+          },
+          series: [
+            {
+              name: "各指标出现频次",
+              data: [that.brokenSentencesCount, that.wrongTextCount, that.oralCount]
+            }
+          ],
+          width:600,
+          height:400,
+          onRenderComplete: () => {
+            console.log("chart1 renderComplete");
+            that.score_5=parseInt(that.score/100*5);
+            resolve();
+          }
+        });
+      });
+    },
+    initChart2() {
+      console.log(2)
+      var that=this;
+      var index;
+      var sum=(that.brokenSentencesCount+that.wrongTextCount);
+      if(sum==0)index=100;
+      else index=that.oralCount*(that.dnnScore+that.correctionScore)/sum;
+        return new Promise((resolve, reject) => {
+        $chart2 = new Charts({
+          element: this.$element("chart2"),
+          type: "radar",
+          categories: ["通顺", "正确", "客观", "口语化","综合"],//客观即情感倾向程度，综合为总评分score，积极消极主要用来凑数
+          series: [
+            {
+              name: "各指标评分",
+              data: [that.dnnScore, that.correctionScore, that.emotionScore, index,that.score]
+            }
+          ],
+          width:600,
+          height:400,
+          onRenderComplete: () => {
+            console.log("chart2 renderComplete");
+            resolve();
+          }
+        });
+      });
+    }
+  };
+</script>
+

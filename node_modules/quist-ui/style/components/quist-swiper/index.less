@@ -1,0 +1,63 @@
+@swiper-prefix: ~"@{css-prefix}-swiper";
+
+.lightboxenter {
+	animation-name: lightboxenter;
+	animation-duration: 600ms;
+}
+
+.lightboxleave {
+	animation-name: lightboxleave;
+	animation-duration: 600ms;
+}
+
+@keyframes lightboxenter {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes lightboxleave {
+	0% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+.@{swiper-prefix} {
+	&-item {
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	&-image {
+		width: 100%;
+	}
+}
+
+.swiper-pagination {
+	flex-direction: row;
+	margin-bottom: 20px;
+}
+
+.pagination-item {
+	width: 10px;
+	height: 4px;
+	margin: 0 2px;
+	border-radius: 67px;
+}
+
+.pagination-number {
+	margin-top: 20px;
+}
+
+.number-text {
+	font-size: @font-size-base;
+}

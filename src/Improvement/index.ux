@@ -1,0 +1,190 @@
+<import name="my-rating" src="../components/rating/index"></import>
+<import name="my-icon" src="../components/icon/index"></import>
+<template>
+
+  <div class="value-page">
+    <div class="text_info" if="{{!show}}">
+      <text style="font-size:40px">您好，亲爱的alec</text>
+      <div><text>你已经完成并提交了</text><text style="font-size:40px;color: #008000;">{{num1}}</text><text>篇文章了</text></div>
+      <div if="{{show2}}"><text>其中有</text><text style="font-size:40px;color: #008000;">{{num2}}</text><text>篇文章获得了90分以上的分数</text></div>
+      <div if="{{show3}}"><text>其中有</text><text style="font-size:40px;color: #008000;">{{num3}}</text><text>篇文章获得了80分以上的分数</text></div>
+      <div><text>以下是您的进步曲线报告，请查收！</text></div>
+    </div>
+    <!-- 不通顺句子数量、消极数量、积极数量-->
+    <div class="chart1">
+      <canvas
+        id="chart"
+        style="width: 600px; height: 400px;"
+      ></canvas>
+    </div>
+  <text if="{{show}}">暂无数据</text>
+  </div>
+
+</template>
+
+<style>
+.value-page{
+  align-items: center;
+  flex-direction: column; 
+  background-color: #faebd7;
+
+  width: 100%;
+  height: 100%;
+}
+.text_info{
+  display: flex;
+  width: 100%;
+  margin: 50px 0px;
+  padding: 0px 30px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  
+}
+.text_info text{
+  margin-top:20px 
+  
+}
+
+.chart1{
+  margin-top: 20px;
+  width: 650px;
+  height: 450px;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 30px;
+  background-color: #fff;
+}
+
+</style>
+
+
+<script>
+
+  import Charts from "../Components/charts/qacharts-min.js"
+  const storage = require('@system.storage')
+  const prompt = require('@system.prompt')
+  let $chart = null
+
+
+  export default {
+    data: {
+        y_data:[],
+        x_date:[],
+        drawComplete: false,
+        show:false,
+        show2:false,
+        show3:false,
+        num1:0,
+        num2:0,
+        num3:0
+    },
+    onInit() {
+    
+    var fileList;
+    var that=this;
+   
+        storage.get({
+        key: 'FILE_LIST',
+        success: function (data) {
+            if(data!=''){
+                var fileL=JSON.parse(data);
+                console.log(fileL,typeof(fileL))
+                that.Count(fileL)
+                fileList=fileL;
+                var y_data=[];
+                var x_date=[];
+                for(let i=0;i<fileList.length;i++){
+                    if(fileList[i].finished==true){
+                        y_data.push(fileList[i].score)
+                        x_date.push(fileList[i].condition)
+                    }
+                }
+            if(y_data.length>5){
+                for(let i=y_data.length-1;i>y_data.length-5;i--){
+                        that.y_data.push(y_data[i])
+                        that.x_date.push(x_date[i])
+
+                }
+            }
+            else{
+              that.y_data=y_data
+              that.x_date=x_date
+            }
+            console.log(that.y_data,that.x_date)
+          }
+          else{
+            prompt.showToast({
+              message: '暂时没有数据哦！看看\"足迹\"试试！'
+            })
+          }
+        }
+        })      
+
+        
+    
+    },
+     onShow() {
+      if (!this.drawComplete&&this.y_data.length!=0) {
+        this.initChart1()
+      }
+      else{
+        this.show=true
+      }
+    },
+
+    initChart1() {
+      var that=this;
+      return new Promise((resolve, reject) => {
+         $chart = new Charts({
+          element: this.$element("chart"),
+          type: "line",
+          width: 600,
+          height: 400,
+          animation: false,
+          xAxis:{
+            axisName:{
+              text:"日期"
+            }
+          },
+          yAxis:{
+            axisName:{
+              text:"每篇文章分数"
+            }
+          },
+          legend: {
+            shapeWidth: 30,
+            shapeHeight: 15
+          },
+          categories:that.x_date,
+          series: [
+            {
+              name: "进步数据折线图",
+              data:that.y_data
+            }
+          ],
+           onRenderComplete: () => {
+            console.log("chart1 renderComplete");
+           
+            resolve();
+          }
+        });
+      });
+    },
+  Count(filelist){
+    var num1=filelist.length;
+    var num2=0;
+    var num3=0;
+    for(let i=0;i<filelist.length;i++){
+      if(filelist[i].score>=90)num2++;
+      else if(filelist[i].score>=80)num3++;
+    }
+    if(num2!=0)this.num2=num2,this.show2=true;
+    if(num3!=0)this.num3=num3,this.show3=true;
+    this.num1=num1;
+  }
+ 
+  };
+</script>
+

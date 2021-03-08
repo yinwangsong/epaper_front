@@ -1,0 +1,497 @@
+<template>
+ <div class="Page">
+   <div style="height:100px;width:100%"></div>
+
+   <div class='title'>
+   <text style="font-size:30px;font-weight: bold;">{{name}}</text>
+   <text style="color:white;">{{time}}</text>
+
+   </div>
+   <!-- 筛选框 -->
+    <div class="input-item">
+        <div class="doc-row">
+          <label target="checkbox1">错字</label>
+          <input id="checkbox1" class="flex-grow" type="checkbox" name="checkbox" value="1" checked="true"
+                 onchange="filter"></input>
+          <label target="checkbox2">口语化</label>
+          <input id="checkbox2" class="flex-grow" type="checkbox" name="checkbox" value="2" checked="true"
+                 onchange="filter"></input>
+          <label target="checkbox3">通顺</label>
+          <input id="checkbox3" class="flex-grow" type="checkbox" name="checkbox" value="3" checked="true"
+                 onchange="filter"></input>
+        </div>
+      </div>
+<!-- 筛选框 -->
+   <div class="onload" if="{{isdata}}">
+     <image src="../Common/nodata.png"  style="resize-mode:contain;height:100px;width:100px" ></image>
+     <text>正在拉取数据，请稍等...</text>
+   </div>
+
+     <div class="paragraph">
+      <div class="sentence" for="{{resback}}"> <!--一篇文章很多句话，逐句遍历 -->
+       
+
+      <!-- <div style="border-bottom:1px solid #ccc" for="{{$item.error}}"> -->
+        <!-- <text if="{{$item.flag!=0}}" class="type{{$item.flag}}">{{$item.text}} </text >
+        <text else >{{$item.text}}</text> -->
+  
+
+        
+        <richtext type="html" class="rich-text">{{$item.res}}</richtext> 
+              
+      <div onclick="show($idx)" style="width:100%">
+        <image src="../Common/inspireMore.png" 
+        style="resize-mode:contain;height:40px;width:40px" > 
+        </image>
+      </div>
+      <block if="{{$item.appear === 1}}" class="inspireMore">
+        <text >
+          {{$item.content}}
+          </text>
+      </block>
+    </div>
+   </div>  
+
+   <image show="{{nodata}}" src="../Common/nodata.png"  style="resize-mode:contain;height:500px" ></image>
+ </div>
+</template>
+<style>
+ @import '../Common/common.css';
+.Page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.title{
+  position:absolute;
+  height:160px;
+  width:100%;
+  flex-direction: column;
+  align-items: center;
+  background-color:#f7d7a7;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+}
+.refresh{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%
+}
+.paragraph{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.rich-text{
+  background-color: #f0f8ff;
+  width: 100%;
+}
+.sentence{
+  width: 92%;
+
+ /* height: 200px;*/
+
+  margin: 10px 0px;
+  padding: 10px;
+  display: flex;
+  justify-content:flex-start;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  background-color: #f0f8ff;
+  border-radius: 20px;
+ 
+
+  /* word-wrap: break-word; */
+}
+.type1{
+  color:red;
+}
+.type2{
+  color:#0000ff;
+}
+.type3{
+  color:#32cd32;
+  font-weight: bolder;
+}
+.inspireMore{
+  
+  width: 100%
+}
+.rotateY {
+    animation-name: rotateY;
+    animation-duration: 1000ms;
+    animation-iteration-count:infinite;
+  }
+@keyframes rotateY {
+    from {
+      transform: rotateY(0deg);
+      opacity: 1;
+    }
+    to{
+     transform: rotateY(180deg); 
+      opacity: 0;
+    }
+  }
+
+ .input-item {
+      flex-direction: column;
+    }
+ 
+    .doc-row {
+      justify-content: center;
+      margin-left: 30px;
+      margin-right: 30px;
+    }
+    .flex-grow {
+      flex-grow: 1;
+    }
+</style>
+<script>
+const request = require('@system.request')
+const fetch = require('@system.fetch')
+const prompt = require('@system.prompt')
+import util from '../utils/util.js'
+export default {
+  private: {
+      componentName: 'refresh',
+      isRefreshing: false,
+      refreshType: 'auto',
+      originText:{},
+      errorSet:[],
+      taskId:1703,
+      rotateY:'',
+      opacity:'',
+      content:'',
+      erroridx:{},
+      flag:null,
+      test:[],
+      result:[],
+      name:null,
+      time:null,
+      isdata:true,
+      v:[],//筛选的value,
+      resback:[],
+      nodata:false
+  },
+  public: {
+      c_taskId: null,
+      c_name:null,
+      c_time:null
+  },
+  onInit(){
+
+    var timestamp = (new Date()).valueOf();
+    var taskId=this.c_taskId;
+    this.name=this.c_name;
+    this.time=this.c_time;
+
+    this.taskId=taskId;
+
+    var openid=this.$app.getAppData('openid');
+    var clientCode=this.$app.getAppData('clientCode');
+    var token=this.$app.getAppData('token');
+
+    var randomCode=util.hex_sha1("RandomCode",openid,timestamp,clientCode)
+    var signed=util.hex_sha1("SIGN",openid,randomCode,token)
+
+    var that=this;
+    this.v[0]=true;
+    this.v[1]=true;
+    this.v[2]=true;
+    let promise1 = new Promise(function (resolve, reject) {
+          fetch.fetch({
+                  url: 'http://epaper.codesdream.com/task/result',
+                  method:'GET',
+                  header:{
+                          'X-Requested-With':'',
+                          'timestamp':timestamp,
+                          'openid':openid,
+                          'signed':signed,
+                          'Content-Type':'application/json'
+                        },
+                  responseType: 'json',
+                  data:{
+                    'taskId':taskId
+                  },
+                  success: function(response) {
+                  var errorSet=response.data.stnResults;
+                  that.errorSet=errorSet;
+                  console.log("错误已获得",response,errorSet.length)
+                  resolve(errorSet)
+                  // var map={};
+                  // var length=errorSet.length;
+                  // var i=0;
+                  // //处理error将每个error的编号与数组下标对应，存在erroridx内部
+                  // for(;i<length;i++)map[errorSet[i].stnId]=i;
+                  //   that.erroridx=map;
+                  },
+                  fail:function(res){
+                    reject(res)
+                  }
+                });
+     })
+     let promise2 = new Promise(function (resolve, reject) {
+      
+        setTimeout(function () {
+            resolve()                // 页面已销毁，不会执行
+        }, 4000)
+
+        that.getOrigin(taskId)
+       //resolve()
+    });
+  Promise.all([
+      promise1, promise2
+    ]).then((res) => {
+      console.log(res)
+      //res[0]错误res[1]原文
+     that.dealData(res)
+     that.isdata=false
+    }).catch(error=>{
+      console.log(error)
+    })
+    // .finally(()=>{
+    //   console.log("你运行了没啊！")
+    // })
+  
+    
+    },
+  dealData(res){
+     //var fetchOri=res[1];
+     var errorSet=res[0];
+     var that=this;
+     that.errorSet=errorSet;
+     console.log("原文信息：",that.originText)
+      if(that.originText=={}){
+         prompt.showToast({
+          message: '网络异常，刷新试试'
+        })
+      }
+      else{
+      var map={};
+      var length=errorSet.length;
+      var i=0;
+      var sum=0;
+      //处理error将每个error的编号与数组下标对应，存在erroridx内部
+      for(;i<length;i++){
+          if(errorSet[i].errorList.length!=0){
+            map[errorSet[i].stnId]=sum;
+            sum++;
+          }
+        }
+
+        that.erroridx=map;
+      //  var errorSet=this.errorSet;
+       console.log('ceshi')
+       var result=[];
+       for(let i=0;i<errorSet.length;i++){
+         var Res=this.preDeal(errorSet[i]);
+         console.log(Res);
+         if(Res!=null&&Res!=undefined&&Res!=''){
+           result.push(Res)
+         }
+       }
+      //console.log(res[0])
+      that.result=result
+      that.resback=result
+      if(result.length==0)this.nodata=true;
+      console.log("结果中级：：：",result)
+      }
+  },
+
+   filter (e) {
+        this.resback=[];
+        console.log(e.value,e.checked)
+        var res=this.result;
+        var tmp=[];
+        this.v[e.value-1]=e.checked;
+        var v=this.v;
+        for(let i=0;i<res.length;i++){
+          res[i].appear=0;
+          if(
+            (v[0]&&res[i].ww==1)||
+          (v[1]&&(res[i].type==2||res[i].type==5))||
+          (v[2]&&(res[i].type==3||res[i].type==5))
+          )
+          tmp.push(res[i]);
+        }
+        console.log('筛选结果',tmp)
+        this.resback=tmp;
+      },
+  show(e){
+    console.log(e)
+
+    if(this.resback[e].appear==0)this.resback[e].appear=1;
+    else this.resback[e].appear=0;
+  },
+  highlight(item,wordIdx,wordLen,typeSum){//1就标记
+    var id=item.stnId;//句子id
+    console.log("我被运行了**********************************************************")
+    var tmp=this.originText[id];//原文
+    var err=item.errorList;//错误列表
+    var res='';
+
+    
+    var start=wordIdx;
+    var stop=start+wordLen;
+
+    var str1=tmp.substring(0,start);
+    var str2=tmp.substring(start,stop);
+    var str3=tmp.substring(stop);
+      if(start!=0){
+        res=this.ToHtml(str1,typeSum,res)
+        res=this.ToHtml(str2,1,res)
+        res=this.ToHtml(str3,typeSum,res)
+        }
+      else{
+        res=this.ToHtml(str2,1,res)
+        res=this.ToHtml(str3,typeSum,res)
+      }
+      console.log(res,item,id)
+    return res;
+  },
+  ToHtml(str,type,res){
+    var primary="font-size:14px"
+    var type1="style=\"color:red;font-weight: bolder;"+"font-size:30px"+"\"";
+    var type2="style=\"color:#0000ff;"+primary+"\"";                      //蓝色-口语化
+    var type3="style=\"color:#32cd32;font-weight: bolder;"+primary+"\"";  //绿色-通顺度
+    var type5="style=\"color: #ff7f50;font-weight: bolder;"+primary+"\""; //橙色-口语化-通顺度
+    if(type==0){
+      return res+"<a style=\""+primary+"\">"+str+"</a>"
+    }
+    else if(type==1){
+      return res+"<a "+type1+">"+str+"</a>"
+    }
+    else if(type==2){
+      return res+"<a "+type2+">"+str+"</a>"
+    }
+    else if(type==3){
+      return res+"<a "+type3+">"+str+"</a>"
+    }
+    else if(type==5){
+      return res+"<a "+type5+">"+str+"</a>"
+    }
+  },
+  rotate(){
+    this.rotateY = 'rotateY'
+    this.opacity='opacity'
+  },
+  preDeal(item){
+
+    var id=item.stnId;
+    //console.log("1111111111",this.originText)
+    var tmp=this.originText[id];
+    var err=item.errorList;
+
+    var flag=null;
+    var typeSum=0;
+    var wordIdx=null;
+    var wordLen=null;
+    var content='';
+    if(err.length==0)return;
+    else if(err[0].content=='')return;
+    else{
+          console.log("error:",err)
+      for(let i=0,num=1;i<err.length;i++){
+        if(err[i].content=='')continue;
+        if(err[i].type==1){
+          flag=true;
+          wordIdx=err[i].wordIdx
+          wordLen=err[i].wordLen
+          }//return this.highlight(item)
+        else{
+          typeSum+=err[i].type
+        }
+        if(err[i].content!='')content+=num+"."+err[i].content+"  ",num++;
+      }
+      var result;
+      if(typeSum==0&&flag==false)return;
+      else if(flag==true){
+        var res=this.highlight(item,wordIdx,wordLen,typeSum);
+        result={
+          res:res,
+          content:content,
+          appear:0,
+          stnId:id,
+          ww:1,
+          type:typeSum
+        }
+      }
+      else{
+        console.log("怎么可能：",tmp,typeSum)
+        var res=this.ToHtml(tmp,typeSum,'');
+        result={
+          res:res,
+          content:content,
+          appear:0,
+          stnId:id,
+          ww:0,
+          type:typeSum
+        }
+      }
+    return result
+    }
+  },
+  changeType () {
+      this.refreshType = this.refreshType === 'auto' ? 'pulldown' : 'auto'
+    },
+    getOrigin(taskId){
+
+        var openid=this.$app.getAppData('openid');
+        var clientCode=this.$app.getAppData('clientCode');
+        var token=this.$app.getAppData('token');
+
+        var x=0;
+
+        var that=this;
+        var length=1;
+
+        function getData(page){
+            return new Promise(function(resolve,resject){
+                //console.log(item)
+                util.getOrigin({
+                    taskId:taskId,
+                    clientCode:clientCode,
+                    openid:openid,
+                    token:token,
+                    page:page
+                    }).then(res=>{
+                      
+                        resolve(res.data)
+                        
+                    });
+            })
+        }
+          function loopArray(fun,str){
+
+            fun(str).then((res) => {
+                x++;
+               console.log(res)
+                for(let i=0;i<res.stns.length;i++) that.originText[res.stns[i].stnId]=res.stns[i].text;
+               
+                length=res.all;
+
+                if(x<=length){
+                    loopArray(getData,x)
+                }
+                else{
+                  //that.content=content
+                  //resolve()
+                }
+            })
+            
+        }        
+        
+        loopArray(getData,1)
+    },
+    stopRefresh () {
+      this.isRefreshing = false
+    },
+}
+ 
+</script>

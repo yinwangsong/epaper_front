@@ -1,0 +1,216 @@
+<import name="quist-overlay" src="../quist-overlay/index"></import>
+
+<template>
+  <quist-overlay visible="{{visible}}" @qui-overlay-click="overlayClick" mask-closable="{{maskClosable}}">
+    <div class="quist-picker {{animationClass}}" show="{{show}}">
+      <div class="quist-picker-title">
+        <text class="quist-picker-cancel" style="{{cancelStyle()}}" @click="cancelClick">{{cancelText}}</text>
+        <text class="quist-picker-confirm" style="{{confirmStyle()}}" @click="confirmClick">{{okText}}</text>
+      </div>
+      <div class="quist-picker-content">
+        <list class="quist-picker-ul" for="(idx, res) in doubleList">
+          <list-item class="quist-picker-li" type="listitem" for="(i, r) in res" @click="selectLi(idx, i, r)">
+            <text style="{{select[idx] === i ? selectedStyle() : normalStyle()}}">{{r}}</text>
+          </list-item>
+        </list>
+      </div>
+    </div>
+  </quist-overlay>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-picker/index.less";
+</style>
+
+<script>
+  export default {
+    props: {
+      maskClosable: {
+        type: Boolean,
+        default: true
+      },
+      visible: {
+        type: Boolean,
+        default: false
+      },
+      okText: {
+        type: String,
+        default: '确定'
+      },
+      cancelText: {
+        type: String,
+        default: '取消'
+      },
+      list: {
+        type: Array,
+        default: []
+      },
+      titleFontSize: {
+        type: Number,
+        default: 34
+      },
+      cancelColor: {
+        type: String,
+        default: '#888888'
+      },
+      confirmColor: {
+        type: String,
+        default: '#1890ff'
+      },
+      itemColor: {
+        type: String,
+        default: '#999999'
+      },
+      itemSelectColor: {
+        type: String,
+        default: '#1890ff'
+      },
+      itemFontSize: {
+        type: Number,
+        default: 30
+      }
+    },
+    data() {
+      return {
+        show: this.visible,
+        animationClass: '',
+        select: {}, //点击的是数组里的哪一个元素
+        selectValue: {},
+        doubleList: [[]]
+      }
+    },
+    onInit() {
+      this.setDefault()
+      this.transformlist()
+      this.toggleVisible(this.visible)
+    },
+    transformlist() {
+      this.list.map((arr) => {
+        if (Array.isArray(arr)) {
+          this.doubleList = this.list
+        } else {
+          this.doubleList[0] = this.list
+        }
+      })
+    },
+    setDefault() {
+      this.$watch('visible', 'toggleVisible')
+    },
+    toggleVisible(visible) {
+      this.timeoutId && clearTimeout(this.timeoutId)
+      if (visible) {
+        this.show = true
+        this.animationClass = `pickerenter`
+      } else {
+        this.animationClass = `pickerleave`
+        this.timeoutId = setTimeout(() => {
+          this.show = false
+        }, 300)
+      }
+    },
+    overlayClick() {
+      this.$emit('onClose')
+    },
+    cancelClick() {
+      this.$emit('onClose')
+    },
+    confirmClick() {
+      this.$emit('onClose')
+      if (this.doubleList.length === 1) {
+        if (this.selectValue[0]) {
+          this.$emit('onSelect', this.selectValue)
+        } else {
+          this.$emit('onSelect', {
+            [0]: {
+              arr: '',
+              index: '',
+              content: ''
+            }
+          })
+        }
+      } else if (this.doubleList.length === 2) {
+        if (this.selectValue[1]) {
+          this.$emit('onSelect', this.selectValue)
+        } else {
+          this.$emit('onSelect', {
+            [0]: {
+              arr: '',
+              index: '',
+              content: ''
+            },
+            [1]: {
+              arr: '',
+              index: '',
+              content: ''
+            }
+          })
+        }
+      } else if (this.doubleList.length === 3) {
+        if (this.selectValue[2]) {
+          this.$emit('onSelect', this.selectValue)
+        } else {
+          this.$emit('onSelect', {
+            [0]: {
+              arr: '',
+              index: '',
+              content: ''
+            },
+            [1]: {
+              arr: '',
+              index: '',
+              content: ''
+            },
+            [2]: {
+              arr: '',
+              index: '',
+              content: ''
+            }
+          })
+        }
+      } else {
+        console.error('目前不支持四列，如有需求请提issues。https://github.com/JDsecretFE/quist-ui/issues')
+      }
+    },
+    selectLi(idx, i, cnt) {
+      this.select = Object.assign({}, this.select, {
+        [idx]: i
+      })
+      this.selectValue = Object.assign({}, this.selectValue, {
+        [idx]: {
+          arr: idx,
+          index: i,
+          content: cnt
+        }
+      })
+    },
+    cancelStyle() {
+      let baseStyle = {
+        fontSize: this.titleFontSize + 'px',
+        color: this.cancelColor
+      }
+      return baseStyle;
+    },
+    confirmStyle() {
+      let baseStyle = {
+        fontSize: this.titleFontSize + 'px',
+        color: this.confirmColor
+      }
+      return baseStyle;
+    },
+    selectedStyle() {
+      let baseStyle = {
+        fontSize: this.itemFontSize + 'px',
+        color: this.itemSelectColor
+      }
+      return baseStyle;
+    },
+    normalStyle() {
+      let baseStyle = {
+        fontSize: this.itemFontSize + 'px',
+        color: this.itemColor
+      }
+      return baseStyle;
+    }
+  }
+</script>

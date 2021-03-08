@@ -1,0 +1,105 @@
+<template>
+  <div style="{{wrapperStyle()}}" @click="select">
+    <text style="{{innerStyle()}}">{{tab}}</text>
+  </div>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-tabs/index.less";
+</style>
+
+<script>
+  export default {
+    props: {
+      tab: {
+        type: String,
+        default: ''
+      },
+      defaultColor: {
+        type: String,
+        default: '#666666'
+      },
+      activeColor: {
+        type: String,
+        default: '#1890ff'
+      },
+      lineWidth: {
+        type: Number,
+        default: 2
+      },
+      fSize: {
+        type: Number,
+        default: 32
+      },
+      selected: {
+        type: Boolean,
+        default: false
+      },
+      layout: {
+        type: String,
+        default: 'left'
+      },
+      height: {
+        type: Number,
+        default: 88
+      },
+      marginX: {
+        type: Number,
+        default: 20
+      }
+    },
+    select() {
+      this.$emit('onClick')
+    },
+    innerStyle() {
+      if (this.selected) {
+        return {
+          color: this.activeColor,
+          fontSize: this.fSize + 'px'
+        }
+      } else {
+        return {
+          color: this.defaultColor,
+          fontSize: this.fSize + 'px'
+        }
+      }
+    },
+    wrapperStyle() {
+      let marX
+      if (this.layout === 'center') {
+        marX = 0
+      } else {
+        marX = this.marginX
+      }
+      let baseStyle = {
+        borderColor: this.activeColor,
+        borderStyle: 'solid',
+        borderBottomWidth: this.lineWidth + 'px',
+        height: this.height + 'px',
+        marginLeft: marX + 'px',
+        marginRight: marX + 'px'
+      }
+      if (this.layout === 'center' && this.selected) {
+        return Object.assign(baseStyle, {
+          flex: 1,
+          marginTop: this.lineWidth + 'px',
+          justifyContent: 'center'
+        });
+      } else if (this.layout === 'center' && !this.selected) {
+        return {
+          flex: 1,
+          justifyContent: 'center'
+        };
+      } else if (this.layout === 'left' && this.selected) {
+        return Object.assign(baseStyle, {
+          marginTop: this.lineWidth + 'px'
+        });
+      } else if (this.layout === 'left' && !this.selected) {
+        return Object.assign(baseStyle, {
+          borderBottomWidth: 0
+        });
+      }
+    }
+  }
+</script>

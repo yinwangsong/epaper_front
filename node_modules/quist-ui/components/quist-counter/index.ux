@@ -1,0 +1,206 @@
+<template>
+  <div class="quist-counter">
+    <div class="quist-counter-operate" style="{{operateStyle()}}" onclick="reduceClicked">
+      <text style="{{reduceStyle()}}">-</text>
+    </div>
+    <div class="quist-counter-input" style="{{inputStyle()}}">
+      <text style="{{inputTextStyle()}}">{{counterValue}}</text>
+    </div>
+    <div class="quist-counter-operate" style="{{operateStyle()}}" onclick="plusClicked">
+      <text style="{{plusStyle()}}">+</text>
+    </div>
+  </div>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-counter/index.less";
+</style>
+
+<script>
+  export default {
+    props: {
+      value: {
+        type: Number,
+        default: 1
+      },
+      min: {
+        type: Number,
+        default: 0
+      },
+      max: {
+        type: Number
+      },
+      disabled: {
+        type: Boolean,
+        default: false
+      },
+      height: {
+        type: Number,
+        default: 60
+      },
+      borderRadius: {
+        type: Number,
+        default: 0
+      },
+      disabledColor: {
+        type: String,
+        default: '#cccccc'
+      },
+      operateWidth: {
+        type: Number,
+        default: 60
+      },
+      operateBorderColor: {
+        type: String,
+        default: '#f7f7f7'
+      },
+      operateBgColor: {
+        type: String,
+        default: '#f7f7f7'
+      },
+      operateFontSize: {
+        type: Number,
+        default: 36
+      },
+      operateFontColor: {
+        type: String,
+        default: '#999999'
+      },
+      numberWidth: {
+        type: Number,
+        default: 70
+      },
+      numberBorderColor: {
+        type: String,
+        default: '#f7f7f7'
+      },
+      numberBgColor: {
+        type: String,
+        default: '#f7f7f7'
+      },
+      numberFontSize: {
+        type: Number,
+        default: 32
+      },
+      numberFontColor: {
+        type: String,
+        default: '#333333'
+      }
+    },
+    data() {
+      return {
+        counterValue: this.value,
+        reduceDisabled: false,
+        plusDisabled: false
+      }
+    },
+    onInit() {
+      if (this.min && (this.value <= this.min)) {
+        this.counterValue = this.min
+        this.reduceDisabled = true
+      } else if (this.max && (this.value >= this.max)) {
+        this.counterValue = this.max
+        this.plusDisabled = true
+      }
+    },
+    reduceClicked() {
+      if (this.disabled) {
+        return false;
+      }
+      if (this.counterValue === this.min) {
+        this.counterValue = this.min
+      } else {
+        this.counterValue -= 1
+      }
+      if (this.counterValue <= this.min) {
+        this.reduceDisabled = true
+      } else {
+        this.reduceDisabled = false
+        this.plusDisabled = false
+      }
+      this.$emit('onChange', {value: this.counterValue})
+    },
+    plusClicked() {
+      if (this.disabled) {
+        return false;
+      }
+      if (this.counterValue === this.max) {
+        this.counterValue = this.max
+      } else {
+        this.counterValue += 1
+      }
+      if (this.counterValue >= this.max) {
+        this.plusDisabled = true
+      } else {
+        this.reduceDisabled = false
+        this.plusDisabled = false
+      }
+      this.$emit('onChange', {value: this.counterValue})
+    },
+    inputStyle() {
+      let baseStyle = {
+        width: this.numberWidth + 'px',
+        height: this.height + 'px',
+        borderColor: this.numberBorderColor,
+        backgroundColor: this.numberBgColor,
+      }
+      return baseStyle;
+    },
+    inputTextStyle() {
+      let baseStyle = {
+        fontSize: this.numberFontSize + 'px',
+        color: this.numberFontColor
+      }
+      if (this.disabled) {
+        return Object.assign(baseStyle, {
+          color: this.disabledColor
+        })
+      } else {
+        return baseStyle;
+      }
+    },
+    operateStyle() {
+      let baseStyle = {
+        width: this.operateWidth + 'px',
+        height: this.height + 'px',
+        backgroundColor: this.operateBgColor,
+        borderColor: this.operateBorderColor,
+        borderRadius: this.borderRadius + 'px'
+      }
+      if (this.disabled) {
+        return Object.assign(baseStyle, {
+          color: this.disabledColor
+        })
+      } else {
+        return baseStyle;
+      }
+    },
+    reduceStyle() {
+      let baseStyle = {
+        fontSize: this.operateFontSize + 'px',
+        color: this.operateFontColor
+      }
+      if (this.disabled || this.reduceDisabled) {
+        return Object.assign(baseStyle, {
+          color: this.disabledColor
+        })
+      } else {
+        return baseStyle;
+      }
+    },
+    plusStyle() {
+      let baseStyle = {
+        fontSize: this.operateFontSize + 'px',
+        color: this.operateFontColor
+      }
+      if (this.disabled || this.plusDisabled) {
+        return Object.assign(baseStyle, {
+          color: this.disabledColor
+        })
+      } else {
+        return baseStyle;
+      }
+    }
+  }
+</script>

@@ -1,0 +1,53 @@
+<template>
+  <div class="quist-progress">
+    <div class="quist-progress-inner" style="height: {{strokeHeight}}px; border-radius: {{borderRadius}}px; background-color: {{strokeBgcolor}};">
+      <div style="{{innerStyle()}}"></div>
+    </div>
+    <div if="{{showInfo}}" class="quist-progress-info"><text>{{percent}}%</text></div>
+  </div>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-progress/index.less";
+</style>
+
+<script>
+  export default {
+    props: {
+      percent: {
+        type: Number,
+        default: 0
+      },
+      showInfo: {
+        type: Boolean,
+        default: true
+      },
+      strokeColor: {
+        type: String,
+        default: '#1890ff'
+      },
+      strokeBgcolor: {
+        type: String,
+        default: '#f5f5f5'
+      },
+      strokeHeight: {
+        type: Number,
+        default: 3
+      },
+      borderRadius: {
+        type: Number,
+        default: 0
+      }
+    },
+    innerStyle() {
+      let baseStyle = {
+        width: this.percent + '%',
+        height: this.strokeHeight + 'px',
+        backgroundColor: this.strokeColor,
+        borderRadius: this.borderRadius + 'px'
+      }
+      return baseStyle;
+    }
+  }
+</script>

@@ -1,0 +1,30 @@
+<template>
+    <div class="doc-page">
+ 
+
+      
+    
+    </div>
+  </template>
+
+  <script>
+    import fetch from '@system.fetch'
+//cheerio
+    
+    
+    export default {
+      private: {
+      
+      },
+      onInit () {
+
+          
+         
+      
+    }
+  }
+  </script>
+
+  <style>
+  
+  </style>

@@ -1,0 +1,35 @@
+
+<script>
+    import util from './utils/util.js'
+    const injectRef = Object.getPrototypeOf(global) || global
+    injectRef.regeneratorRuntime = require('@babel/runtime/regenerator')
+    
+//   const account = require('@service.account')
+
+//   account.authorize({
+//   type: 'token',
+//   //redirectUri: 'http://www.example.com/',
+//   success: function(data) {
+//     console.log(`handling success: ${data.code}`)
+//   },
+//   fail: function(data, code) {
+//     console.log(`handling fail, code = ${code}`)
+//   }
+// })
+export default {
+
+ onCreate () {
+      // 初始化 app 缓存的数据
+      this.dataCache = {}
+    },
+   
+    getAppData (key) {
+      return this.dataCache[key]
+    },
+  
+    setAppData (key, val) {
+      this.dataCache[key] = val
+    }
+  }
+
+</script>

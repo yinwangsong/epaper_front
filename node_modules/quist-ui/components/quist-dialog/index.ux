@@ -1,0 +1,128 @@
+<import name="quist-overlay" src="../quist-overlay/index"></import>
+
+<template>
+  <quist-overlay visible="{{visible}}" @qui-overlay-click="overlayClick" mask-closable="{{maskClosable}}">
+    <div class="quist-dialog">
+      <text style="{{titleStyle()}}" if="title">{{title}}</text>
+      <div class="{{title ? 'quist-dialog-content' : 'quist-dialog-contentb'}}" style="justify-content: {{direction}};">
+        <text style="{{contentStyle()}}">{{content}}</text>
+      </div>
+      <div class="quist-dialog-btns" if="footer">
+        <div class="cancel-btn" if="cancelText" @click="cancelClick"><text class="btn-text" style="color: {{cancelColor}}">{{cancelText}}</text></div>
+        <div class="ok-btn" @click="okClick"><text class="btn-text" style="color: {{okColor}}">{{okText}}</text></div>
+      </div>
+    </div>
+  </quist-overlay>
+</template>
+
+<style lang="less">
+  @import "../../style/index.less";
+  @import "../../style/components/quist-dialog/index.less";
+</style>
+
+<script>
+  export default {
+    props: {
+      footer: {
+        type: Boolean,
+        default: true
+      },
+      maskClosable: {
+        type: Boolean,
+        default: false
+      },
+      visible: {
+        type: Boolean,
+        default: false
+      },
+      title: {
+        type: String,
+        default: ''
+      },
+      content: {
+        type: String,
+        default: ''
+      },
+      okText: {
+        type: String,
+        default: '确定'
+      },
+      cancelText: {
+        type: String,
+        default: ''
+      },
+      type: {
+        type: String,
+        default: ''
+      },
+      okColor: {
+        type: String,
+        default: '#1890ff'
+      },
+      cancelColor: {
+        type: String,
+        default: '#333333'
+      },
+      titleSize: {
+        type: Number,
+        default: 36
+      },
+      titleColor: {
+        type: String,
+        default: '#333333'
+      },
+      contentSize: {
+        type: Number,
+        default: 30
+      },
+      contentColor: {
+        type: String,
+        default: '#999999'
+      },
+      align: {
+        type: String,
+        default: 'center'
+      }
+    },
+    data() {
+      return {
+        direction: ''
+      }
+    },
+    onInit() {
+      if (this.align === 'left') {
+        this.direction = 'flex-start'
+      } else if (this.align === 'center') {
+        this.direction = 'center'
+      } else if (this.align === 'right') {
+        this.direction = 'flex-end'
+      }
+    },
+    titleStyle() {
+      let baseStyle = {
+        marginTop: '30px',
+        textAlign: 'center',
+        fontSize: this.titleSize + 'px',
+        color: this.titleColor
+      }
+      return baseStyle;
+    },
+    contentStyle() {
+      let baseStyle = {
+        lineHeight: '40px',
+        fontSize: this.contentSize + 'px',
+        color: this.contentColor
+      }
+      return baseStyle;
+    },
+    overlayClick() {
+      this.$emit('onCancel', this.type)
+    },
+    cancelClick() {
+      this.$emit('onCancel', this.type)
+    },
+    okClick() {
+      this.$emit('onOk', this.type)
+    }
+  }
+</script>
